@@ -3,13 +3,14 @@
 #include <string.h>
 #include <time.h>
 #include <assert.h>
-
 #include IMPL
 
 #ifdef OPT
 #define OUT_FILE "opt.txt"
-#else
+#elif ORIG
 #define OUT_FILE "orig.txt"
+#elif HASH
+#define OUT_FILE "hash.txt"
 #endif
 
 #define DICT_FILE "./dictionary/words.txt"
@@ -35,6 +36,7 @@ int main(int argc, char *argv[])
     struct timespec start, end;
     double cpu_time1, cpu_time2;
 
+
     /* check file opening */
     fp = fopen(DICT_FILE, "r");
     if (fp == NULL) {
@@ -43,11 +45,23 @@ int main(int argc, char *argv[])
     }
 
     /* build the entry */
+#ifndef HASH
     entry *pHead, *e;
     pHead = (entry *) malloc(sizeof(entry));
     printf("size of entry : %lu bytes\n", sizeof(entry));
     e = pHead;
     e->pNext = NULL;
+#endif
+#ifdef HASH
+    entry* e=malloc(HASH_TABLE_SIZE*sizeof(*e));
+    entry* pHead=e;
+    entry* tmp=e;
+    printf("size of entry : %lu bytes\n", sizeof(entry));
+    for(int i=0; i<HASH_TABLE_SIZE; i++) {
+        tmp->pNext=NULL;
+        tmp++;
+    }
+#endif
 
 #if defined(__GNUC__)
     __builtin___clear_cache((char *) pHead, (char *) pHead + sizeof(entry));
